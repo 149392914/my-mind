@@ -1,4 +1,3 @@
-/* My Mind web app: all source files combined. */
 if (!Function.prototype.bind) {
 	Function.prototype.bind = function(thisObj) {
 		var fn = this;
@@ -298,6 +297,7 @@ MM.Item = function() {
 	this._color = null;
 	this._value = null;
 	this._status = null;
+	this._remark = null;
 	this._side = null; /* side preference */
 	this._id = MM.generateId();
 	this._oldText = "";
@@ -360,6 +360,7 @@ MM.Item.prototype.toJSON = function() {
 	if (this._color) { data.color = this._color; }
 	if (this._value) { data.value = this._value; }
 	if (this._status) { data.status = this._status; }
+	if (this._remark) { data.remark = this._remark; }
 	if (this._layout) { data.layout = this._layout.id; }
 	if (!this._autoShape) { data.shape = this._shape.id; }
 	if (this._collapsed) { data.collapsed = 1; }
@@ -379,6 +380,7 @@ MM.Item.prototype.fromJSON = function(data) {
 	if (data.side) { this._side = data.side; }
 	if (data.color) { this._color = data.color; }
 	if (data.value) { this._value = data.value; }
+	if (data.remark) { this._value = data.remark; }
 	if (data.status) {
 		this._status = data.status;
 		if (this._status == "maybe") { this._status = "computed"; }
@@ -416,6 +418,11 @@ MM.Item.prototype.mergeWith = function(data) {
 
 	if (this._status != data.status) { 
 		this._status = data.status;
+		dirty = 1;
+	}
+	
+	if (this._remark != data.remark) { 
+		this._remark = data.remark;
 		dirty = 1;
 	}
 
@@ -556,6 +563,11 @@ MM.Item.prototype.getComputedValue = function() {
 
 MM.Item.prototype.setStatus = function(status) {
 	this._status = status;
+	return this.update();
+}
+
+MM.Item.prototype.setRemark = function(remark) {
+	this._remark = remark;
 	return this.update();
 }
 
@@ -3873,6 +3885,21 @@ MM.UI.Status.prototype.update = function() {
 MM.UI.Status.prototype.handleEvent = function(e) {
 	var action = new MM.Action.SetStatus(MM.App.current, this._select.value || null);
 	MM.App.action(action);
+}
+MM.UI.remark = function() {
+	this._select = document.querySelector("#remark");
+	this._select.addEventListener("change", this);
+}
+
+MM.UI.remark.prototype.update = function() {
+	var value = MM.App.current.getRemark();
+	if (value === null) { value = ""; }
+	this._select.remark = value;
+}
+
+MM.UI.remark.prototype.handleEvent = function(e) {
+	var value = this._select.remark;
+	alert(value);
 }
 MM.UI.Color = function() {
 	this._node = document.querySelector("#color");
